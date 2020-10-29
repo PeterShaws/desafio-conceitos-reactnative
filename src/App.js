@@ -26,7 +26,28 @@ export default function App() {
   }, []);
 
   async function handleLikeRepository(id) {
-    // Implement "Like Repository" functionality
+    try {
+      const response = await api.post(`repositories/${id}/like`);
+      if (response.status === 200) {
+        const { data: newRepository } = response;
+        const newRepositories = [...repositories];
+        const repositoryIndex = newRepositories.findIndex(
+          (repository) => repository.id === id
+        );
+        newRepositories[repositoryIndex] = newRepository;
+        setRepositories(newRepositories);
+      } else {
+        throw new Error(
+          `[ERROR] handleLikeRepository(): Unexpected response: ${JSON.stringify(
+            response,
+            null,
+            2
+          )}`
+        );
+      }
+    } catch (error) {
+      console.error(error.response || error);
+    }
   }
 
   return (
@@ -59,7 +80,7 @@ export default function App() {
 
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => handleLikeRepository(1)}
+                onPress={() => handleLikeRepository(repository.id)}
                 testID={`like-button-${repository.id}`}
               >
                 <Text style={styles.buttonText}>Curtir</Text>
